@@ -2,28 +2,52 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"go_blog/internal/services"
 	"net/http"
+	"strconv"
 )
 
-// PostsController represents the posts controller.
-type PostsController struct{}
-
-// NewPostsController creates a new instance of the PostsController.
-func NewPostsController() *PostsController {
-	return &PostsController{}
+// PostsController represents the controller for handling posts-related routes.
+type PostsController struct {
+	postsService *services.PostsService
 }
 
-// GetAllPosts handles the GET request to fetch all posts.
+// NewPostsController creates a new instance of the PostsController.
+func NewPostsController(ps *services.PostsService) *PostsController {
+	return &PostsController{
+		postsService: ps,
+	}
+}
+
+// GetAllPosts handles GET /api/v1/posts route.
 func (pc *PostsController) GetAllPosts(c *gin.Context) {
-	posts := []string{"Post 1", "Post 2", "Post 3"}
+	posts, err := pc.postsService.GetAllPosts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
 
 	c.JSON(http.StatusOK, posts)
 }
 
-// GetPostByID handles the GET request to fetch a post by its ID.
+// GetPostByID handles GET /api/v1/posts/:id route.
 func (pc *PostsController) GetPostByID(c *gin.Context) {
-	postID := c.Param("id")
-	post := "Post " + postID
+	postID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	post, err := pc.postsService.GetPostByID(postID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	if post == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		return
+	}
 
 	c.JSON(http.StatusOK, post)
 }

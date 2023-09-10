@@ -1,6 +1,9 @@
 package controllers
 
-import "go_blog/internal/controllers/api/v1"
+import (
+	"go_blog/internal/controllers/api/v1"
+	"go_blog/internal/services"
+)
 
 // ApplicationController represents the application controller.
 type ApplicationController struct {
@@ -10,8 +13,10 @@ type ApplicationController struct {
 
 // NewApplicationController creates a new instance of the ApplicationController.
 func NewApplicationController() *ApplicationController {
+	as := services.NewApplicationService()
+
 	return &ApplicationController{
 		HealthCheckController: NewHealthCheckController(),
-		PostsController:       v1.NewPostsController(),
+		PostsController:       v1.NewPostsController(as.PostsService),
 	}
 }
