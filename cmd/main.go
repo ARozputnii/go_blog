@@ -3,12 +3,14 @@ package main
 import (
 	"go_blog/internal/config"
 	"go_blog/internal/controllers"
-	"os"
 )
 
 func main() {
-	// load env files
-	config.LoadEnv()
+	// Load environment variables into the configuration structure
+	env, err := config.LoadEnv()
+	if err != nil {
+		panic("Failed to load environment variables")
+	}
 
 	// Initialize the application controller
 	ac := controllers.NewApplicationController()
@@ -19,5 +21,5 @@ func main() {
 	// Initialize and run the router
 	server := router.InitRoutes()
 
-	_ = server.Run(":" + os.Getenv("PORT"))
+	_ = server.Run(":" + env.Port)
 }
