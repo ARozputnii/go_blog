@@ -26,5 +26,12 @@ func (r *Router) InitRoutes() *gin.Engine {
 
 	router.GET("/ping", r.AC.HealthCheckController.Ping)
 
+	api := router.Group("/api")
+	v1 := api.Group("/v1")
+
+	// Create endpoints for PostsController
+	v1.GET("/posts", r.AC.PostsController.GetAllPosts)
+	v1.GET("/posts/:id", r.AC.PostsController.GetPostByID)
+
 	return router
 }
